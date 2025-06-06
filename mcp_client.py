@@ -119,86 +119,9 @@ async def run_agent(chat_request: Union[Dict[str, Any], ChatRequest]) -> Dict[st
         return {"status": "error", "message": str(e), "type": type(e).__name__}
 
 
-# def extract_final_answer(agent_response: Dict[str, Any]) -> str:
-#     """
-#     Extract the final answer from the agent's response.
-#
-#     Args:
-#         agent_response: The response dictionary from run_agent
-#
-#     Returns:
-#         str: The final answer text or error message
-#     """
-#     if not isinstance(agent_response, dict):
-#         return "Invalid response format from agent"
-#
-#     if agent_response.get("status") == "error":
-#         return f"Error: {agent_response.get('message', 'Unknown error')}"
-#
-#     messages = agent_response.get("messages", [])
-#     if not messages:
-#         return "No response generated"
-#
-#     # Return the last assistant message
-#     for msg in reversed(messages):
-#         print(msg, "type", type(msg))
-#         if isinstance(msg, dict) and msg.get("role") == "assistant":
-#             return msg.get("content", "No content")
-#         elif hasattr(msg, "type") and msg.type == "ai":
-#             return getattr(msg, "content", "No content")
-#
-#     return "No assistant message found in response"
-
-
 def extract_final_answer(agent_response):
     if isinstance(agent_response, list):
         for message in reversed(agent_response):
             if isinstance(message, AIMessage) and message.content:
                 return message.content
     return "No valid answer found."
-
-
-async def chat_loop():
-    """Run an interactive chat loop with the agent."""
-    print("Real Estate Chat Agent (type 'exit' to quit)")
-    print("-" * 40)
-
-    while True:
-        try:
-            # Get user input
-            user_input = input("\nYou: ")
-
-            # Exit condition
-            if user_input.lower() in ["exit", "quit"]:
-                print("\nGoodbye!")
-                break
-
-            # Prepare the chat request
-            chat_request = {
-                "messages": user_input,
-                "model": model.model_name,
-                "temperature": model.temperature,
-            }
-
-            # Get agent response
-            print("\nAgent is thinking...")
-            response = await run_agent(chat_request)
-
-            # Extract and display the answer
-            answer = extract_final_answer(response)
-            print(f"\nAgent: {answer}")
-
-        except KeyboardInterrupt:
-            print("\nExiting...")
-            break
-        except Exception as e:
-            error_msg = f"Error: {str(e)}"
-            print(f"\n{error_msg}")
-
-
-if __name__ == "__main__":
-    try:
-        # Run the interactive chat loop
-        asyncio.run(chat_loop())
-    except Exception as e:
-        print(f"\nFatal error: {str(e)}")
