@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   app:
+    container_name: django
+    restart: always
     build: .
     ports:
       - "8000:8000"
@@ -17,6 +19,8 @@ services:
 
 
   mcp-server:
+    container_name: mcp-server
+    restart: always
     build: .
     command: >
       sh -c "chmod +x /app/run_mcp.sh && /app/run_mcp.sh"
@@ -29,6 +33,8 @@ services:
       - db
 
   db:
+    container_name: postgres
+    restart: always
     image: postgres:15-alpine
     env_file:
       - .env
