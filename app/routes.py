@@ -1,11 +1,8 @@
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import get_filtered_properties
-from app.db import get_db
 from mcp_client import extract_final_answer, run_agent
 
 router = APIRouter()
@@ -26,37 +23,6 @@ class ChatRequest(BaseModel):
     model: str = Field(
         default="gpt-4o", description="The OpenAI model to use for the chat completion"
     )
-
-
-@router.get("/properties")
-async def search_properties(
-    city: str = None,
-    bhk: int = None,
-    max_price: int = None,
-    db: AsyncSession = Depends(get_db),
-):
-    """
-    Search for properties based on filters.
-
-    Args:
-        city: Filter by city name
-        bhk: Filter by number of bedrooms
-        max_price: Maximum price filter
-        db: Database session
-
-    Returns:
-        List of properties matching the criteria
-    """
-    try:
-        properties = await get_filtered_properties(
-            db, city=city, bhk=bhk, max_price=max_price
-        )
-        return {"status": "success", "results": len(properties), "data": properties}
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error searching properties: {str(e)}",
-        )
 
 
 @router.post("/chat", response_model=Dict[str, Any])
@@ -94,19 +60,12 @@ async def chat_with_agent(request: ChatRequest):
             {"messages": formatted_messages, "model": request.model}
         )
 
-        print(agent_response, "AGENT RESPONSE")
-
         # Extract the final answer
         final_answer = extract_final_answer(agent_response.get("messages", []))
-
-        # Update chat history with the assistant's response
-        updated_history = request.chat_history.copy()
-        updated_history.append(ChatMessage(role="assistant", content=final_answer))
 
         return {
             "status": "success",
             "message": final_answer,
-            "chat_history": updated_history,
             "raw_response": agent_response,
         }
 
