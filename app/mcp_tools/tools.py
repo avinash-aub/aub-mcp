@@ -6,6 +6,8 @@ from mcp.server.fastmcp import FastMCP
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from app.utils import format_property_details
+
 load_dotenv()
 
 mcp = FastMCP(
@@ -23,7 +25,7 @@ def search_properties(
     max_price: Optional[int] = None,
     min_price: Optional[int] = None,
     limit: int = 20,
-) -> List[dict]:
+) -> dict:
     """
     Search properties using raw SQL.
     Input can include city, bhk, max_price, min_price, and limit.
@@ -56,7 +58,17 @@ def search_properties(
 
         result = session.execute(text(query), params)
         results = [dict(row) for row in result.mappings().all()]
+        formatted_results = format_property_details(results)
     finally:
         session.close()
 
-    return results
+    if not results:
+        return {
+            "message": "No properties found",
+            "data": [],
+        }
+
+    return {
+        "message": f"{len(results)} Properties found",
+        "data": formatted_results,
+    }

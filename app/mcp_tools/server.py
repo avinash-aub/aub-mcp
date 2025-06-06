@@ -1,10 +1,14 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 from app.mcp_tools.tools import mcp
 from app.models import Base
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/realestate_mcp"
-engine_sync = create_engine(DATABASE_URL)
+load_dotenv()
+database_url = os.getenv("DATABASE_URL")
+engine_sync = create_engine(database_url)
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine_sync)
