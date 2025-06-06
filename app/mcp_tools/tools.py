@@ -1,24 +1,28 @@
-from mcp.server.fastmcp import FastMCP
-from typing import Optional, List
-from sqlalchemy import text
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 import os
+from typing import List, Optional
+
 from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-mcp = FastMCP("Real Estate MCP", )
+mcp = FastMCP(
+    "Real Estate MCP",
+)
 
 engine_sync = create_engine(os.getenv("DATABASE_URL"))
 SessionLocal = sessionmaker(bind=engine_sync)
+
+
 @mcp.tool()
 def search_properties(
     city: Optional[str] = None,
     bhk: Optional[int] = None,
     max_price: Optional[int] = None,
     min_price: Optional[int] = None,
-    limit: int = 20
+    limit: int = 20,
 ) -> List[dict]:
     """
     Search properties using raw SQL.

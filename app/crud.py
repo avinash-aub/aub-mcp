@@ -1,7 +1,9 @@
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
+
+from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import and_
+
 from app.models import Property
 
 
@@ -12,7 +14,7 @@ async def get_filtered_properties(
     max_price: Optional[int] = None,
     bhk: Optional[int] = None,
     limit: int = 20,
-    offset: int = 0
+    offset: int = 0,
 ) -> List[Dict]:
     """
     Async query to fetch properties for FastAPI.

@@ -1,6 +1,7 @@
-from app.models import Base
-from app.mcp_tools.tools import mcp
 from sqlalchemy import create_engine
+
+from app.mcp_tools.tools import mcp
+from app.models import Base
 
 DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/realestate_mcp"
 engine_sync = create_engine(DATABASE_URL)

@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String
+
 from app.db import Base
+
 
 class Property(Base):
     __tablename__ = "properties"

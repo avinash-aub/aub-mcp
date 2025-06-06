@@ -1,10 +1,11 @@
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
 from typing import AsyncGenerator
+
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -19,7 +20,10 @@ engine = create_async_engine(
     max_overflow=20,
     pool_pre_ping=True,
 )
-AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine, class_=AsyncSession, expire_on_commit=False
+)
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency for getting async database session"""
@@ -29,6 +33,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     except Exception as e:
         logger.exception("Database session failed")
         raise
+
 
 @asynccontextmanager
 async def lifespan(app):
